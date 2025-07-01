@@ -51,13 +51,20 @@ async def lp_list(message: types.Message) -> None:
 
 
 async def status(message: types.Message) -> None:
+    """Show current user settings in a formatted message."""
+
     user = get_user(message.chat.id)
+
     address = user.get("address", "")
+
     hf = user.get("hf_thresholds", [])
+    hf_text = " / ".join(str(x) for x in hf) if hf else "—"
+
     sr = user.get("sr_thresholds", [])
-    hf_text = " / ".join(str(x) for x in hf) if hf else ""
-    sr_text = " / ".join(str(x) for x in sr) if sr else ""
-    lp_fees = user.get("lp_fees_threshold", 0)
+    sr_text = " / ".join(str(x) for x in sr) if sr else "—"
+
+    lp_fees = user.get("lp_fees_threshold")
+    fees_text = f"${lp_fees}" if lp_fees is not None else "—"
 
     price_alerts = user.get("price_alerts", {})
     if price_alerts:
@@ -65,22 +72,27 @@ async def status(message: types.Message) -> None:
             f"{k.upper()}: {v}%" for k, v in price_alerts.items()
         )
     else:
-        price_lines = ""
+        price_lines = " —"
 
     lp_pairs = user.get("lp_pairs", [])
     if lp_pairs:
         lp_lines = "\n\t•\t" + "\n\t•\t".join(lp_pairs)
     else:
-        lp_lines = ""
+        lp_lines = " —"
 
     alerts = user.get("alerts", {})
-    alerts_text = "\n".join(f"{k}: {'on' if v else 'off'}" for k, v in alerts.items())
+    if alerts:
+        alerts_text = "\n".join(
+            f"{k}: {'on' if v else 'off'}" for k, v in alerts.items()
+        )
+    else:
+        alerts_text = "—"
 
     text = (
-        f"👤 Адрес: {address}\n"
+        f"👤 Адрес: {address or '—'}\n"
         f"📉 HF: {hf_text}\n"
         f"📈 SR: {sr_text}\n"
-        f"💰 LP Fee Threshold: ${lp_fees}\n"
+        f"💰 LP Fee Threshold: {fees_text}\n"
         f"📊 Price Alerts:{price_lines}\n"
         f"💼 LP-пары:{lp_lines}\n"
         f"🔔 Алерты:\n{alerts_text}"
