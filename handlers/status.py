@@ -1,9 +1,15 @@
-from aiogram import types, Dispatcher
+"""Backward-compatible status command module."""
+
+from aiogram import Dispatcher, types
+from aiogram.filters import Command
+
+from . import lp
 
 
 async def cmd_status(message: types.Message) -> None:
-    await message.answer("Portfolio status is not implemented yet.")
+    """Delegate to lp.status for actual implementation."""
+    await lp.status(message)
 
 
 def register(dp: Dispatcher) -> None:
-    dp.register_message_handler(cmd_status, commands=["status"])
+    dp.message.register(cmd_status, Command("status"))
