@@ -3,6 +3,7 @@ from aiogram import Bot, Dispatcher
 
 from config import load_config
 from handlers import register_handlers
+from services.monitor import monitor_all_users
 
 
 async def main() -> None:
@@ -11,6 +12,7 @@ async def main() -> None:
     dp = Dispatcher(bot)
 
     register_handlers(dp)
+    asyncio.create_task(monitor_all_users(bot))
 
     await dp.start_polling()
 
